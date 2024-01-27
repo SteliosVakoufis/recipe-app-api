@@ -1,3 +1,35 @@
-from django.shortcuts import render
+"""
+Views for the recipe APIs.
+"""
 
-# Create your views here.
+from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+from core.models import Recipe
+from recipe import serializers as recipe_serializers
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """View to manage recipe APIs."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = recipe_serializers.RecipeDetailSerializer
+    queryset = Recipe.objects.all()
+
+    def get_queryset(self):
+        """Retrieve recipes for authenticated user."""
+        return self.queryset.filter(
+            user=self.request.user
+        ).order_by('-id')
+
+    def get_serializer_class(self):
+        """Return the serializer for request"""
+        if self.action == 'list':
+            return recipe_serializers.RecipeSerializer
+
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new recipe."""
+        serializer.save(user=self.request.user)
