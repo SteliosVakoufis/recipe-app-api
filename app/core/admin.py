@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core import models as core_models
 
 admin.site.register(core_models.Recipe)
+admin.site.register(core_models.Tag)
 
 
 @admin.register(core_models.User)
